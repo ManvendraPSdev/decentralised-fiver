@@ -1,11 +1,47 @@
 import { PrismaClient } from "@prisma/client";
 import { Router } from "express";
 import jwt from 'jsonwebtoken';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { JWT_SECRET } from '..';
+import { authMiddleware } from "../Middleware";
+
+const s3Client = new S3Client({
+    credentials: {
+        accessKeyId: "YOUR_ACCESS_KEY_ID",
+        secretAccessKey: "YOUR_SECRET_ACCESS_KEY"
+    }
+});
+
 
 const router = Router();
-const JWT_SECRET = '1234';
 
 const prismaClient = new PrismaClient();
+
+// This code sets up a route handler for generating a presigned URL for uploading an object to Amazon S3.
+//  When a request is made to the /presignedUrl endpoint, it performs authentication checks,
+//  creates an S3 client, constructs a command object for uploading the object,
+//  and generates a presigned URL for the upload operation
+router.get('/presignedUrl',authMiddleware , async (req, res) => {
+
+    // @ts-ignore
+    const userId = req.userId ;
+
+    const command = new PutObjectCommand({
+        Bucket: "Your-bucket-name",
+        Key: `/fiver/${userId}/${Math.random()}/img.jpg` ,
+        ContentType : "img/jpg"
+    })
+    const preSignedUrl = await getSignedUrl(s3Client, command, {
+        expiresIn: 3600
+    })
+
+    console.log(preSignedUrl);
+    res.json({
+        preSignedUrl 
+    })
+
+})
 
 
 router.post("/signin", async (req, res) => {

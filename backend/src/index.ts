@@ -7,6 +7,7 @@ dotenv.config() ;
 const PORT = process.env.PORT||8005
 
 const app = express() ;
+export const JWT_SECRET = '1234';
 
 app.use("/v1/user" , userRouter) ;
 app.use("/v1/worker" , workerRouter) ;
