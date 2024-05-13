@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { JWT_SECRET } from '..';
-import { authMiddleware } from "../Middleware";
+import { authMiddleware } from "../middleware";
 
 const s3Client = new S3Client({
     credentials: {
